@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 import {Animated} from 'react-native'
 import { useFocusEffect } from '@react-navigation/native';
 import MainButton from "@/constants/MainButton";
-import { signup } from "./api/signup";
+import { signup } from "@/api/signup";
 import validateSignup from "@/validation/signup";
 import alert from "@/errors/alert";
 

@@ -1,18 +1,17 @@
 import Config from 'react-native-config';
 import axios from 'axios';
 import alert from '@/errors/alert';
-import { API_URL , LOCAL_URL} from '@/config/config';
+import { API_URL } from '@/config/config';
 import { router } from 'expo-router';
-const URL = LOCAL_URL; 
 
 export const signup = async (name: string, phone: string, email: string, password: string) => {
   try {
-    if (!URL) {
+    if (!API_URL) {
       alert('error', 'server address (API_URL) is not defined');
       throw new Error('API_URL not defined');
     }
 
-    const response = await axios.post(`${URL}/api/signup`,
+    const response = await axios.post(`${API_URL}/api/signup`,
        { name, phone, email, password },
        {
          timeout: 10000,
@@ -33,8 +32,8 @@ export const signup = async (name: string, phone: string, email: string, passwor
     });
     
     if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.message || 
-                         error.response?.data || 
+      const errorMessage = error.response?.data?.error || 
+                         error.response?.data?.message || 
                          'an error occurred during signup';
       alert('error', errorMessage);
       throw new Error(errorMessage);

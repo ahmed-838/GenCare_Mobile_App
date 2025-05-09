@@ -5,7 +5,7 @@ import React from "react";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from '@react-navigation/native';
 import MainButton from "@/constants/MainButton";
-import { login } from './api/login';
+import { login } from '@/api/login';
 import { isAuthenticated } from "@/utils/auth";
 import { useNotifications } from "@/contexts/NotificationContext";
 

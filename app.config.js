@@ -4,8 +4,11 @@ export default {
     slug: 'gencare',
     version: '1.0.0',
     icon: "./assets/Logo/baby-boy.png",
+    sdkVersion: "53.0.0",
     extra: {
-      apiUrl: 'http://192.168.122.1:5000',
+      apiUrl: 'http://192.168.1.2:5000',
+     // apiUrl: 'https://gen-care-backend.vercel.app',
+
       eas: {
         projectId: "806cd55a-e5b4-48df-acf8-e9d0cb13847a"
       }
@@ -33,7 +36,8 @@ export default {
       "assets/gif/*"
     ],
     plugins: [
-      "expo-router"
+      "expo-router",
+      "expo-secure-store"
     ],
     newArchEnabled: true, 
     scheme: "gencare"
