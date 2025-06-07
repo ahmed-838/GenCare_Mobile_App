@@ -130,11 +130,13 @@ const LoginScreen = () => {
                 </View>
                 
                 <View style={styles.logoContainer}>
+                    <TouchableOpacity onPress={() => router.push('/(home)/home')}>
                     <Image
                         source={require("@/assets/Logo/Mob-Logo-removebg-preview.png")}
                         style={styles.logo}
                         resizeMode="contain"
                     />
+                    </TouchableOpacity>
                 </View>
 
                 <View>

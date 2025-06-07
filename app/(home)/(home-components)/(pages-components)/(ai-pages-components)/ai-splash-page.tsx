@@ -1,10 +1,11 @@
-import React from 'react';
-import { ScrollView, View, Text, Image, StyleSheet,Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, Text, Image, StyleSheet, Dimensions } from 'react-native';
 import { router } from 'expo-router';
 import { bgColors } from '@/constants/Colors';
 import { useFonts } from 'expo-font';
 import MainButton from '@/constants/MainButton';
-// نحصل على أبعاد الشاشة
+import { isAuthenticated } from '@/utils/auth';
+
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function AiSplashPage() {
@@ -13,9 +14,33 @@ export default function AiSplashPage() {
     'Actor': require('@/assets/fonts/Actor/Actor-Regular.ttf'),
     'ADLaMDisplay': require('@/assets/fonts/ADLaM_Display/ADLaMDisplay-Regular.ttf'),
   });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
+  
+  const checkLoginStatus = async () => {
+    try {
+      const loggedIn = await isAuthenticated();
+      setIsLoggedIn(loggedIn);
+    } catch (error) {
+      console.error('Error checking login status:', error);
+      setIsLoggedIn(false);
+    }
+  };
+
+  const handleTryAI = () => {
+    if (isLoggedIn) {
+      router.push('/(home)/(home-components)/(pages-components)/ai-page-components');
+    } else {
+      router.push('/(auth)/login');
+    }
+  };
+  
 
   if (!fontsLoaded) {
-    return null; // أو شاشة تحميل
+    return null; 
   }
   
   return (
@@ -29,8 +54,6 @@ export default function AiSplashPage() {
           resizeMode="contain"
         />
       </View>
-      {/* <Image source={require('@/assets/ai_components/splash/baby-sleep-unscreen.gif')} style={styles.moon} /> */}
-      {/* <Button title="Try AI Now" onPress={() => router.push('/(home)/(home-components)/(pages-components)/ai-page-components')} /> */}
       
       <View style={styles.titleContainer}>
         <Text style={styles.title}>Experience the Power{'\n'}of GenCare AI</Text>
@@ -76,7 +99,11 @@ export default function AiSplashPage() {
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <MainButton title="Try AI Now" onPress={() => router.push('/(home)/(home-components)/(pages-components)/ai-page-components')} />
+        <MainButton 
+          title={isLoggedIn ? "Try AI Now" : "Login to Continue"} 
+          onPress={handleTryAI} 
+          backgroundColor={isLoggedIn ? undefined : '#4F2FA2'}
+        />
       </View>
     </ScrollView>
   );
@@ -195,9 +222,9 @@ const styles = StyleSheet.create({
     marginTop: screenHeight * 0.005,
   },
   buttonContainer: {
-
     marginTop: screenHeight * 0.05,
     alignItems: 'center',
+    width: '100%',
   },
 });
 

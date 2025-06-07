@@ -3,7 +3,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import Navbar from '../(navbar)/navbar';
+import Navbar from '../../(navbar)/navbar';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const NAVBAR_HEIGHT = SCREEN_HEIGHT * 0.12;
