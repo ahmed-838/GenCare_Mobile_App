@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { StyleSheet, View, TouchableOpacity, Text, Image } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, ActivityIndicator } from 'react-native';
 import { FlatList } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { BabyName } from '@/data/babyNames';
 import Font from '@/constants/Fonts';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface NamesListProps {
   names: BabyName[];
@@ -14,7 +15,6 @@ interface NamesListProps {
   onNameSelection: (name: BabyName) => void;
 }
 
-// مكون لعنصر الاسم - معزول ومخزن مؤقتًا لتحسين الأداء
 const NameItem = React.memo(({
   item,
   isSaved,
@@ -28,38 +28,84 @@ const NameItem = React.memo(({
   isUpdating: boolean;
   onPress: () => void;
 }) => {
-  const genderColor = item.gender === 'M' ? '#95cae4' : '#ffb9cc';
+  const genderColors = item.gender === 'M' ? 
+    ['#E3F2FD', '#BBDEFB'] : 
+    ['#FCE4EC', '#F8BBD0'];
+  
   const genderIcon = item.gender === 'M' ? 'male' : 'female';
+  const iconColor = item.gender === 'M' ? '#1976D2' : '#D81B60';
+  
+  // اختيار نمط العنصر بناءً على الحالة
+  const getBorderStyle = () => {
+    if (isSaved) {
+      return {
+        borderColor: '#623AA2',
+        borderWidth: 2,
+      };
+    }
+    if (isSelected) {
+      return {
+        borderColor: '#4CAF50',
+        borderWidth: isUpdating ? 2 : 1,
+      };
+    }
+    return {};
+  };
   
   return (
     <TouchableOpacity 
       onPress={onPress}
+      activeOpacity={0.7}
       style={[
         styles.nameItem,
-        isSaved && styles.savedNameItem,
-        isSelected && !isSaved && styles.selectedNameItem,
-        isUpdating && isSelected && styles.updatingNameItem
+        getBorderStyle(),
       ]}
     >
-      <View style={styles.nameContent}>
-        <Ionicons 
-          name={genderIcon} 
-          size={16} 
-          color={genderColor} 
-        />
-        <Text style={[styles.nameText, { color: genderColor }]}>
-          {item.name}
-        </Text>
-      </View>
-      {(isSaved || isSelected) && (
-        <Ionicons 
-          name="checkmark-circle" 
-          size={20} 
-          color={isSaved ? '#623AA2' : '#4CAF50'} 
-          style={styles.checkmark}
-        />
-      )}
+      <LinearGradient
+        colors={genderColors as any}
+        style={styles.nameItemGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.nameContent}>
+          <Ionicons 
+            name={genderIcon} 
+            size={16} 
+            color={iconColor} 
+          />
+          <Text style={[styles.nameText, { color: iconColor }]}>
+            {item.name}
+          </Text>
+        </View>
+        {(isSaved || isSelected) && (
+          <Ionicons 
+            name="checkmark-circle" 
+            size={20} 
+            color={isSaved ? '#623AA2' : '#4CAF50'} 
+            style={styles.checkmark}
+          />
+        )}
+      </LinearGradient>
     </TouchableOpacity>
+  );
+});
+
+// مكون لقائمة فارغة
+const EmptyListPlaceholder = React.memo(() => (
+  <View style={styles.emptyContainer}>
+    <Text style={styles.emptyText}>No names available for this letter</Text>
+  </View>
+));
+
+// مكون لحالة التحميل
+const ListFooter = React.memo(({ loading }: { loading: boolean }) => {
+  if (!loading) return null;
+  
+  return (
+    <View style={styles.footerContainer}>
+      <ActivityIndicator size="small" color="#623AA2" />
+      <Text style={styles.loadingText}>Loading more names...</Text>
+    </View>
   );
 });
 
@@ -71,7 +117,8 @@ const NamesList: React.FC<NamesListProps> = ({
   hasChanges,
   onNameSelection
 }) => {
-  // استخدام useMemo لتخزين حسابات الأسماء المحفوظة
+  const [isLoading, setIsLoading] = useState(false);
+
   const savedNamesMap = useMemo(() => {
     const map = new Map<string, boolean>();
     const savedNames = savedNamesByLetter[selectedLetter] || [];
@@ -81,7 +128,6 @@ const NamesList: React.FC<NamesListProps> = ({
     return map;
   }, [savedNamesByLetter, selectedLetter]);
   
-  // استخدام useMemo لتخزين حسابات الأسماء المحددة
   const selectedNamesMap = useMemo(() => {
     const map = new Map<string, boolean>();
     selectedNames.forEach(name => {
@@ -90,12 +136,18 @@ const NamesList: React.FC<NamesListProps> = ({
     return map;
   }, [selectedNames]);
 
-  // استخدام useCallback لتجنب إعادة إنشاء داله غير ضرورية
+  const ListHeader = useMemo(() => (
+    <View style={styles.listHeader}>
+      <Text style={styles.listHeaderText}>
+        {names.length} {names.length === 1 ? 'name' : 'names'} available
+      </Text>
+    </View>
+  ), [names.length]);
+
   const handleNamePress = useCallback((name: BabyName) => {
     onNameSelection(name);
   }, [onNameSelection]);
 
-  // تحسين عرض عنصر الاسم
   const renderNameItem = useCallback(({ item }: { item: BabyName }) => {
     const isSaved = savedNamesMap.has(item.name);
     const isSelected = selectedNamesMap.has(item.name);
@@ -111,12 +163,20 @@ const NamesList: React.FC<NamesListProps> = ({
     );
   }, [savedNamesMap, selectedNamesMap, hasChanges, handleNamePress]);
 
-  // باستخدام getItemLayout للتسريع
   const getItemLayout = useCallback((data: any, index: number) => ({
-    length: 80,
-    offset: 80 * Math.floor(index / 2),
+    length: 65,
+    offset: 65 * Math.floor(index / 2) + (index % 2 === 0 ? 0 : 5),
     index,
   }), []);
+
+  const handleEndReached = useCallback(() => {
+    if (names.length > 20 && !isLoading) {
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
+    }
+  }, [names.length, isLoading]);
 
   return (
     <View style={styles.namesContainer}>
@@ -127,12 +187,19 @@ const NamesList: React.FC<NamesListProps> = ({
         numColumns={2}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.namesGrid}
+        ListHeaderComponent={ListHeader}
+        ListEmptyComponent={<EmptyListPlaceholder />}
+        ListFooterComponent={<ListFooter loading={isLoading} />}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.5}
         nestedScrollEnabled={true}
-        removeClippedSubviews={true} // تحسين الذاكرة
-        maxToRenderPerBatch={10} // تحميل عدد محدود في المرة الواحدة
-        windowSize={5} 
+        removeClippedSubviews={true} 
+        maxToRenderPerBatch={10} 
+        windowSize={5}
         initialNumToRender={12}
         getItemLayout={getItemLayout}
+        updateCellsBatchingPeriod={50}
+        keyboardShouldPersistTaps="handled"
       />
     </View>
   );
@@ -142,6 +209,9 @@ const styles = StyleSheet.create({
   namesContainer: {
     flex: 1,
     paddingHorizontal: 10,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    borderRadius: 15,
+    margin: 10,
   },
   namesGrid: {
     paddingBottom: 20,
@@ -149,18 +219,21 @@ const styles = StyleSheet.create({
   nameItem: {
     flex: 1,
     margin: 5,
-    padding: 15,
     borderRadius: 10,
-    backgroundColor: '#fff',
+    height: 65,
+    overflow: 'hidden',
+    elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2,
+  },
+  nameItemGradient: {
+    flex: 1,
+    padding: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    height: 65, // تحديد ارتفاع ثابت للتحسين
   },
   nameContent: {
     flexDirection: 'row',
@@ -170,25 +243,45 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
     fontWeight: '500',
-  },
-  savedNameItem: {
-    backgroundColor: 'rgba(98, 58, 162, 0.1)',
-    borderColor: '#623AA2',
-    borderWidth: 1,
-  },
-  selectedNameItem: {
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
-    borderColor: '#4CAF50',
-    borderWidth: 1,
-  },
-  updatingNameItem: {
-    backgroundColor: 'rgba(76, 175, 80, 0.15)',
-    borderColor: '#4CAF50',
-    borderWidth: 2,
+    fontFamily: Font.raleway,
   },
   checkmark: {
     position: 'absolute',
     right: 10,
+  },
+  emptyContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    fontFamily: Font.raleway,
+  },
+  footerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  loadingText: {
+    marginLeft: 10,
+    fontSize: 14,
+    color: '#666',
+    fontFamily: Font.raleway,
+  },
+  listHeader: {
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    marginBottom: 5,
+  },
+  listHeaderText: {
+    fontSize: 14,
+    color: '#666',
+    fontFamily: Font.raleway,
   },
 });
 
