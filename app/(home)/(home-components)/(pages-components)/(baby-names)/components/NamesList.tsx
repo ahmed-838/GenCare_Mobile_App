@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { StyleSheet, View, TouchableOpacity, Text, Image } from 'react-native';
 import { FlatList } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
@@ -14,6 +14,55 @@ interface NamesListProps {
   onNameSelection: (name: BabyName) => void;
 }
 
+// مكون لعنصر الاسم - معزول ومخزن مؤقتًا لتحسين الأداء
+const NameItem = React.memo(({
+  item,
+  isSaved,
+  isSelected,
+  isUpdating,
+  onPress,
+}: {
+  item: BabyName;
+  isSaved: boolean;
+  isSelected: boolean;
+  isUpdating: boolean;
+  onPress: () => void;
+}) => {
+  const genderColor = item.gender === 'M' ? '#95cae4' : '#ffb9cc';
+  const genderIcon = item.gender === 'M' ? 'male' : 'female';
+  
+  return (
+    <TouchableOpacity 
+      onPress={onPress}
+      style={[
+        styles.nameItem,
+        isSaved && styles.savedNameItem,
+        isSelected && !isSaved && styles.selectedNameItem,
+        isUpdating && isSelected && styles.updatingNameItem
+      ]}
+    >
+      <View style={styles.nameContent}>
+        <Ionicons 
+          name={genderIcon} 
+          size={16} 
+          color={genderColor} 
+        />
+        <Text style={[styles.nameText, { color: genderColor }]}>
+          {item.name}
+        </Text>
+      </View>
+      {(isSaved || isSelected) && (
+        <Ionicons 
+          name="checkmark-circle" 
+          size={20} 
+          color={isSaved ? '#623AA2' : '#4CAF50'} 
+          style={styles.checkmark}
+        />
+      )}
+    </TouchableOpacity>
+  );
+});
+
 const NamesList: React.FC<NamesListProps> = ({
   names,
   selectedNames,
@@ -22,50 +71,52 @@ const NamesList: React.FC<NamesListProps> = ({
   hasChanges,
   onNameSelection
 }) => {
-  const isNameSaved = (name: BabyName) => {
-    return savedNamesByLetter[selectedLetter]?.some(
-      saved => saved.name === name.name
-    );
-  };
+  // استخدام useMemo لتخزين حسابات الأسماء المحفوظة
+  const savedNamesMap = useMemo(() => {
+    const map = new Map<string, boolean>();
+    const savedNames = savedNamesByLetter[selectedLetter] || [];
+    savedNames.forEach(name => {
+      map.set(name.name, true);
+    });
+    return map;
+  }, [savedNamesByLetter, selectedLetter]);
+  
+  // استخدام useMemo لتخزين حسابات الأسماء المحددة
+  const selectedNamesMap = useMemo(() => {
+    const map = new Map<string, boolean>();
+    selectedNames.forEach(name => {
+      map.set(name.name, true);
+    });
+    return map;
+  }, [selectedNames]);
 
-  const renderNameItem = ({ item }: { item: BabyName }) => {
-    const saved = isNameSaved(item);
-    const isSelected = selectedNames.includes(item);
+  // استخدام useCallback لتجنب إعادة إنشاء داله غير ضرورية
+  const handleNamePress = useCallback((name: BabyName) => {
+    onNameSelection(name);
+  }, [onNameSelection]);
+
+  // تحسين عرض عنصر الاسم
+  const renderNameItem = useCallback(({ item }: { item: BabyName }) => {
+    const isSaved = savedNamesMap.has(item.name);
+    const isSelected = selectedNamesMap.has(item.name);
     
     return (
-      <TouchableOpacity 
-        onPress={() => onNameSelection(item)}
-        style={[
-          styles.nameItem,
-          saved && styles.savedNameItem,
-          isSelected && !saved && styles.selectedNameItem,
-          hasChanges && isSelected && styles.updatingNameItem
-        ]}
-      >
-        <View style={styles.nameContent}>
-          <Ionicons 
-            name={item.gender === 'M' ? 'male' : 'female'} 
-            size={16} 
-            color={item.gender === 'M' ? '#95cae4' : '#ffb9cc'} 
-          />
-          <Text style={[
-            styles.nameText,
-            { color: item.gender === 'M' ? '#95cae4' : '#ffb9cc' }
-          ]}>
-            {item.name}
-          </Text>
-        </View>
-        {(saved || isSelected) && (
-          <Ionicons 
-            name="checkmark-circle" 
-            size={20} 
-            color={saved ? '#623AA2' : '#4CAF50'} 
-            style={styles.checkmark}
-          />
-        )}
-      </TouchableOpacity>
+      <NameItem 
+        item={item}
+        isSaved={isSaved}
+        isSelected={isSelected}
+        isUpdating={hasChanges}
+        onPress={() => handleNamePress(item)}
+      />
     );
-  };
+  }, [savedNamesMap, selectedNamesMap, hasChanges, handleNamePress]);
+
+  // باستخدام getItemLayout للتسريع
+  const getItemLayout = useCallback((data: any, index: number) => ({
+    length: 80,
+    offset: 80 * Math.floor(index / 2),
+    index,
+  }), []);
 
   return (
     <View style={styles.namesContainer}>
@@ -77,6 +128,11 @@ const NamesList: React.FC<NamesListProps> = ({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.namesGrid}
         nestedScrollEnabled={true}
+        removeClippedSubviews={true} // تحسين الذاكرة
+        maxToRenderPerBatch={10} // تحميل عدد محدود في المرة الواحدة
+        windowSize={5} 
+        initialNumToRender={12}
+        getItemLayout={getItemLayout}
       />
     </View>
   );
@@ -104,6 +160,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    height: 65, // تحديد ارتفاع ثابت للتحسين
   },
   nameContent: {
     flexDirection: 'row',
@@ -135,4 +192,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NamesList; 
+export default React.memo(NamesList); 

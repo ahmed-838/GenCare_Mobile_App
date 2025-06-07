@@ -46,24 +46,28 @@ const promotionalNotifications: Notification[] = [
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    justifyContent: 'flex-start',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   menuItemsContainer: {
     position: 'absolute',
-    right: SCREEN_WIDTH * 0.05,
-    top: 80,
     backgroundColor: 'rgba(255, 255, 255, 0.98)',
-    borderRadius: 16,
-    width: Math.min(SCREEN_WIDTH * 0.85, 340),
+    borderRadius: 20,
+    width: Math.min(SCREEN_WIDTH * 0.9, 360),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 12,
+    minHeight: 300,
+    maxHeight: '85%',
   },
   notificationsContainer: {
     maxHeight: '80%',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
   },
   notificationsHeader: {
     flexDirection: 'row',
@@ -84,7 +88,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   scrollContainer: {
+    height: 350,
     maxHeight: 400,
+    paddingHorizontal: 2,
+    paddingVertical: 2,
+    flex: 1,
   },
   menuItem: {
     flexDirection: 'row',
@@ -92,6 +100,13 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+    backgroundColor: '#fff',
+    width: '100%',
+    minHeight: 80,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   unreadNotification: {
     backgroundColor: 'rgba(98, 58, 162, 0.05)',
@@ -186,6 +201,12 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     marginLeft: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(98, 58, 162, 0.08)',
   },
   loadingContainer: {
     flex: 1,
@@ -241,8 +262,9 @@ export default function NotificationsModal({
     <Modal
       visible={isVisible}
       transparent={true}
-      animationType="fade"
+      animationType="slide"
       onRequestClose={onClose}
+      presentationStyle="overFullScreen"
     >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.modalOverlay}>
@@ -253,12 +275,12 @@ export default function NotificationsModal({
                 <View style={styles.headerButtons}>
                   {isLoggedIn && hasUnreadNotifications && (
                     <TouchableOpacity onPress={markAllAsRead} style={styles.headerButton}>
-                      <Text style={styles.clearButton}>Mark all read</Text>
+                      <Ionicons name="checkmark-done-outline" size={22} color="#623AA2" />
                     </TouchableOpacity>
                   )}
                   {isLoggedIn && notifications.length > 0 && (
                     <TouchableOpacity onPress={clearAll} style={styles.headerButton}>
-                      <Text style={styles.clearButton}>Clear all</Text>
+                      <Ionicons name="trash-outline" size={22} color="#623AA2" />
                     </TouchableOpacity>
                   )}
                 </View>
@@ -272,7 +294,18 @@ export default function NotificationsModal({
                 </View>
               )}
               
-              <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+              <ScrollView 
+                style={styles.scrollContainer}
+                contentContainerStyle={{
+                  padding: 0,
+                  flexDirection: 'column',
+                  width: '100%',
+                  minHeight: 50
+                }}
+                showsVerticalScrollIndicator={false}
+                bounces={false}
+                nestedScrollEnabled={true}
+              >
                 {isLoading ? (
                   <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#623AA2" />
@@ -283,12 +316,13 @@ export default function NotificationsModal({
                       key={notification.id}
                       style={[
                         styles.menuItem,
-                        !notification.isRead && styles.unreadNotification
+                        !notification.isRead ? styles.unreadNotification : null
                       ]}
                       onPress={() => isLoggedIn 
                         ? handleNotificationPress(notification) 
                         : handlePromoNotificationPress(notification)
                       }
+                      activeOpacity={0.7}
                     >
                       <View style={styles.menuIconContainer}>
                         <Ionicons 

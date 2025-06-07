@@ -1,15 +1,10 @@
-import React from 'react';
-import { SafeAreaView, StyleSheet, Text, View, ImageBackground, TouchableOpacity, FlatList, Image, Animated, Dimensions, ScrollView, ViewStyle, TextStyle } from "react-native";
-import { router } from 'expo-router';
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import React, { useState, useMemo, useCallback } from 'react';
+import { SafeAreaView, StyleSheet, Text, View, ImageBackground, Animated, Dimensions, ViewStyle, TextStyle } from "react-native";
 import Font from "../../../../../constants/Fonts";
-import { alphabetData, BabyName } from "data/babyNames";
+import { alphabetData } from "data/babyNames";
 import { theme } from "../../../../../constants/Colors1";
-import { getLetterGif } from 'data/BabyGifs';
 import { bgColors } from "@/constants/Colors";
 import Navbar from '../../(navbar)/navbar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_URL } from '@/config/config';
 import AlphabetList from './components/AlphabetList';
 import NamesList from './components/NamesList';
 import SaveButton from './components/SaveButton';
@@ -17,6 +12,21 @@ import { useBabyNames } from './hooks/useBabyNames';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const NAVBAR_HEIGHT = SCREEN_HEIGHT * 0.12;
+
+// استخدام مكونات منفصلة لتجنب إعادة العرض الكاملة للصفحة
+const PageHeader = React.memo(({ titleText }: { titleText: string }) => (
+  <View style={styles.titleContainer}>
+    <Text style={styles.titleText}>{titleText}</Text>
+  </View>
+));
+
+const WaveBG = React.memo(() => (
+  <ImageBackground
+    source={require('../../../../../assets/images/babyNames/svg.png')}
+    style={styles.waveContainer}
+    resizeMode="cover"
+  />
+));
 
 const BabyNames = () => {
   const {
@@ -32,17 +42,55 @@ const BabyNames = () => {
 
   const scrollY = new Animated.Value(0);
 
-  const names = alphabetData.find(
-    section => section.letter === selectedLetter
-  )?.names || [];
+  // تحسين أداء البحث عن الأسماء باستخدام useMemo
+  const names = useMemo(() => {
+    return alphabetData.find(section => section.letter === selectedLetter)?.names || [];
+  }, [selectedLetter]);
+
+  // تحسين العرض باستخدام useCallback لتجنب إعادة الإنشاء
+  const headerComponent = useCallback(() => (
+    <>
+      <View style={styles.saveButtonContainer}>
+        <SaveButton
+          hasChanges={hasChanges}
+          isUpdating={isUpdating}
+          onSave={saveChanges}
+        />
+      </View>
+
+      <WaveBG />
+      
+      <PageHeader titleText="Baby Names" />
+
+      <View style={styles.content}>
+        <AlphabetList
+          data={alphabetData}
+          selectedLetter={selectedLetter}
+          onLetterChange={handleLetterChange}
+        />
+
+        <NamesList
+          names={names}
+          selectedNames={selectedNames}
+          savedNamesByLetter={savedNamesByLetter}
+          selectedLetter={selectedLetter}
+          hasChanges={hasChanges}
+          onNameSelection={handleNameSelection}
+        />
+      </View>
+    </>
+  ), [selectedLetter, selectedNames, savedNamesByLetter, hasChanges, isUpdating, handleLetterChange, handleNameSelection, saveChanges, names]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Animated.View style={[styles.navbarContainer, { opacity: scrollY.interpolate({
-        inputRange: [0, 50],
-        outputRange: [0, 1],
-        extrapolate: 'clamp',
-      })}]}  />
+      <Animated.View style={[styles.navbarContainer, { 
+        opacity: scrollY.interpolate({
+          inputRange: [0, 50],
+          outputRange: [0, 1],
+          extrapolate: 'clamp',
+        })
+      }]}  />
+      
       <Navbar 
         scrollY={scrollY}
         variant="simple"
@@ -56,52 +104,20 @@ const BabyNames = () => {
           { useNativeDriver: true }
         )}
         scrollEventThrottle={16}
-        ListHeaderComponent={() => (
-          <>
-            <View style={styles.saveButtonContainer}>
-              <SaveButton
-                hasChanges={hasChanges}
-                isUpdating={isUpdating}
-                onSave={saveChanges}
-              />
-            </View>
-
-            <ImageBackground
-              source={require('../../../../../assets/images/babyNames/svg.png')}
-              style={styles.waveContainer}
-              resizeMode="cover"
-            />
-            
-            <View style={styles.titleContainer}>
-              <Text style={styles.titleText}>Baby Names</Text>
-            </View>
-
-            <View style={styles.content}>
-              <AlphabetList
-                data={alphabetData}
-                selectedLetter={selectedLetter}
-                onLetterChange={handleLetterChange}
-              />
-
-              <NamesList
-                names={names}
-                selectedNames={selectedNames}
-                savedNamesByLetter={savedNamesByLetter}
-                selectedLetter={selectedLetter}
-                hasChanges={hasChanges}
-                onNameSelection={handleNameSelection}
-              />
-            </View>
-          </>
-        )}
+        ListHeaderComponent={headerComponent}
         data={[]}
         renderItem={null}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={1}
+        maxToRenderPerBatch={1}
+        removeClippedSubviews={true}
+        windowSize={3}
       />
     </SafeAreaView>
   );
 };
 
-export default BabyNames;
+export default React.memo(BabyNames);
 
 const styles = StyleSheet.create({
   container: {
@@ -254,53 +270,15 @@ const styles = StyleSheet.create({
   saveButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(98, 58, 162, 0.1)',
-    paddingHorizontal: 16,
+    backgroundColor: 'white',
     paddingVertical: 8,
+    paddingHorizontal: 16,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#623AA2',
-  },
-  savedButton: {
-    backgroundColor: '#623AA2',
-    borderColor: '#623AA2',
-  },
-  saveButtonText: {
-    marginLeft: 8,
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#623AA2',
-  },
-  savedButtonText: {
-    color: '#fff',
-  },
-  selectedNameItem: {
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
-    borderColor: '#4CAF50',
-    borderWidth: 1,
-    transform: [{ scale: 1.02 }],
-  },
-  savedNameItem: {
-    backgroundColor: 'rgba(98, 58, 162, 0.1)',
-    borderColor: '#623AA2',
-    borderWidth: 1,
-  },
-  checkmark: {
-    position: 'absolute',
-    right: 15,
-    transform: [{ scale: 1.1 }],
-  },
-  updateButton: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
-  },
-  updateButtonText: {
-    color: '#fff',
-  },
-  updatingNameItem: {
-    backgroundColor: 'rgba(76, 175, 80, 0.15)',
-    borderColor: '#4CAF50',
-    borderWidth: 2,
-  },
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  } as ViewStyle,
 });
 
