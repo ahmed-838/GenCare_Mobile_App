@@ -6,6 +6,7 @@ import { bgColors } from "@/constants/Colors";
 import Navbar from '../../(navbar)/navbar';
 import { saveWeek, deleteWeek, getSavedWeeks } from '@/app/(home)/(home-components)/(pages-components)/(profile-pages-components)/components/saved-items/api/savedWeeks';
 import * as SecureStore from 'expo-secure-store';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const NAVBAR_HEIGHT = SCREEN_HEIGHT * 0.12;
@@ -18,7 +19,7 @@ const PregnancyPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
-  const [language, setLanguage] = useState<'en' | 'ar'>('en');
+  const { language } = useLanguage(); // Use language from context
 
   useEffect(() => {
     const getToken = async () => {
@@ -81,10 +82,6 @@ const PregnancyPage = () => {
     }
   };
 
-  const toggleLanguage = () => {
-    setLanguage(prev => prev === 'en' ? 'ar' : 'en');
-  };
-
   const handleScroll = (event: any) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     scrollY.setValue(offsetY);
@@ -103,6 +100,7 @@ const PregnancyPage = () => {
         scrollY={scrollY}
         variant="simple"
         style={styles.navbar}
+        showLanguageToggle={true}
       />
 
       <ScrollView
@@ -131,31 +129,6 @@ const PregnancyPage = () => {
               </Text>
             </TouchableOpacity>
           )}
-          
-          {/* Language Toggle Button */}
-          <TouchableOpacity 
-            style={styles.languageToggleButton} 
-            onPress={toggleLanguage}
-          >
-            <View style={[
-              styles.languageOption, 
-              language === 'en' ? styles.activeLanguage : styles.inactiveLanguage
-            ]}>
-              <Text style={[
-                styles.languageText, 
-                language === 'en' ? styles.activeLanguageText : styles.inactiveLanguageText
-              ]}>EN</Text>
-            </View>
-            <View style={[
-              styles.languageOption, 
-              language === 'ar' ? styles.activeLanguage : styles.inactiveLanguage
-            ]}>
-              <Text style={[
-                styles.languageText, 
-                language === 'ar' ? styles.activeLanguageText : styles.inactiveLanguageText
-              ]}>AR</Text>
-            </View>
-          </TouchableOpacity>
         </View>
         
         <View style={styles.titleContainer}>
@@ -344,37 +317,6 @@ const styles = StyleSheet.create({
   },
   savedButtonText: {
     color: '#fff',
-  },
-  languageToggleButton: {
-    flexDirection: 'row',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#623AA2',
-    overflow: 'hidden',
-    width: 120,
-    height: 36,
-  },
-  languageOption: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 6,
-  },
-  activeLanguage: {
-    backgroundColor: '#623AA2',
-  },
-  inactiveLanguage: {
-    backgroundColor: 'rgba(98, 58, 162, 0.1)',
-  },
-  languageText: {
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  activeLanguageText: {
-    color: '#FFFFFF',
-  },
-  inactiveLanguageText: {
-    color: '#623AA2',
   },
 });
 

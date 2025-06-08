@@ -5,6 +5,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useState, useEffect } from 'react';
 import { saveDisease, deleteDisease, getSavedDiseases } from '@/app/(home)/(home-components)/(pages-components)/(profile-pages-components)/components/saved-items/api/savedDisaeas';
 import * as SecureStore from 'expo-secure-store';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -19,7 +20,7 @@ export default function DiseaseDetails({ disease, updateSavedDiseases }: Disease
   const [isSaving, setIsSaving] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [language, setLanguage] = useState<'en' | 'ar'>('en');
+  const { language } = useLanguage();
   
   useEffect(() => {
     const getToken = async () => {
@@ -88,10 +89,6 @@ export default function DiseaseDetails({ disease, updateSavedDiseases }: Disease
     }
   };
 
-  const toggleLanguage = () => {
-    setLanguage(prev => prev === 'en' ? 'ar' : 'en');
-  };
-
   if (isLoading) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
@@ -117,31 +114,6 @@ export default function DiseaseDetails({ disease, updateSavedDiseases }: Disease
           <Text style={[styles.saveButtonText, isSaved && styles.savedButtonText]}>
             {isSaving ? "Saving..." : (isSaved ? 'saved' : 'save')}
           </Text>
-        </TouchableOpacity>
-        
-        {/* Language Toggle Button */}
-        <TouchableOpacity 
-          style={styles.languageToggleButton} 
-          onPress={toggleLanguage}
-        >
-          <View style={[
-            styles.languageOption, 
-            language === 'en' ? styles.activeLanguage : styles.inactiveLanguage
-          ]}>
-            <Text style={[
-              styles.languageText, 
-              language === 'en' ? styles.activeLanguageText : styles.inactiveLanguageText
-            ]}>EN</Text>
-          </View>
-          <View style={[
-            styles.languageOption, 
-            language === 'ar' ? styles.activeLanguage : styles.inactiveLanguage
-          ]}>
-            <Text style={[
-              styles.languageText, 
-              language === 'ar' ? styles.activeLanguageText : styles.inactiveLanguageText
-            ]}>AR</Text>
-          </View>
         </TouchableOpacity>
       </View>
       <View style={styles.content}>
@@ -210,36 +182,5 @@ const styles = StyleSheet.create({
   },
   savedButtonText: {
     color: '#fff',
-  },
-  languageToggleButton: {
-    flexDirection: 'row',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#623AA2',
-    overflow: 'hidden',
-    width: 120,
-    height: 36,
-  },
-  languageOption: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 6,
-  },
-  activeLanguage: {
-    backgroundColor: '#623AA2',
-  },
-  inactiveLanguage: {
-    backgroundColor: 'rgba(98, 58, 162, 0.1)',
-  },
-  languageText: {
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  activeLanguageText: {
-    color: '#FFFFFF',
-  },
-  inactiveLanguageText: {
-    color: '#623AA2',
   },
 }); 

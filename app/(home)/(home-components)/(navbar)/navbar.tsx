@@ -12,6 +12,7 @@ import { isAuthenticated } from '@/utils/auth';
 import * as SecureStore from 'expo-secure-store';
 import * as NotificationService from '@/utils/notificationService';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const { mockNotifications } = constants;
 
@@ -20,6 +21,7 @@ export default function Navbar({
   variant = 'default',
   showNotifications = true,
   showProfile = true,
+  showLanguageToggle = false, // Hidden by default
   customLogo,
   onNotificationPress 
 }: NavbarProps) {
@@ -27,6 +29,7 @@ export default function Navbar({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(true);
+  const { language, toggleLanguage } = useLanguage();
   
   // Use notification context for real-time updates
   const { 
@@ -183,6 +186,27 @@ export default function Navbar({
 
           {/* حاوية الأزرار اليمنى */}
           <View style={styles.rightContainer}>
+            {/* زر تغيير اللغة */}
+            {showLanguageToggle && (
+              <TouchableOpacity 
+                style={styles.iconButton}
+                onPress={toggleLanguage}
+              >
+                <View style={styles.notificationContainer}>
+                  <Ionicons 
+                    name="globe-outline" 
+                    size={28}
+                    color="#623AA2"
+                  />
+                  <View style={styles.langBadge}>
+                    <Text style={styles.langBadgeText}>
+                      {language === 'en' ? 'AR' : 'EN'}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            )}
+
             {showNotifications && (
               <TouchableOpacity 
                 style={styles.iconButton}
@@ -381,5 +405,27 @@ const styles = StyleSheet.create({
   logoImage: {
     width: Math.min(DIMENSIONS.SCREEN_WIDTH * 0.2, 80),
     height: Math.min(DIMENSIONS.SCREEN_WIDTH * 0.2, 80),
+  },
+  langBadge: {
+    position: 'absolute',
+    bottom: -8,
+    right: -8,
+    backgroundColor: bgColors.light.background,
+    borderRadius: 12,
+    minWidth: 20,
+    height: 20,
+    paddingHorizontal: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#623AA2',
+  },
+  langBadgeText: {
+    color: '#623AA2',
+    fontSize: 11,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 16,
+    justifyContent: 'center',
   },
 });

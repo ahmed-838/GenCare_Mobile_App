@@ -35,7 +35,7 @@ export default function DiseasesPage() {
   return (
     <View style={styles.container}>
       <View style={styles.navbarWrapper}>
-        <Navbar scrollY={scrollY} />
+        <Navbar scrollY={scrollY} showLanguageToggle={true} />
       </View>
 
       <Animated.ScrollView

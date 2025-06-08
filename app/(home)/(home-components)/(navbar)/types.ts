@@ -5,6 +5,7 @@ export interface NavbarProps {
   variant?: 'default' | 'simple';
   showNotifications?: boolean;
   showProfile?: boolean;
+  showLanguageToggle?: boolean;
   customLogo?: any;
   onNotificationPress?: () => void;
   style?: ViewStyle;
