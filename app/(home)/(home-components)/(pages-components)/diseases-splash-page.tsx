@@ -6,11 +6,15 @@ import DiseaseCard from './(diseases-pages-components)/DiseaseCard';
 import { diseases } from '@/data/diseases';
 import { router } from 'expo-router';
 import { useFonts } from 'expo-font';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function DiseasesSplashPage() {
+  const { language } = useLanguage();
+  const isArabic = language === 'ar';
+  
   const [fontsLoaded] = useFonts({
     'FugazOne': require('@/assets/fonts/Fugaz_One/FugazOne-Regular.ttf'),
     'Actor': require('@/assets/fonts/Actor/Actor-Regular.ttf'),
@@ -27,22 +31,32 @@ export default function DiseasesSplashPage() {
   };
 
   const renderDiseaseCard = ({ item }: { item: typeof diseases[number] }) => (
-    <DiseaseCard disease={item} onSelect={handleDiseaseSelect} />
+    <DiseaseCard 
+      disease={item} 
+      onSelect={handleDiseaseSelect}
+      isArabic={isArabic}
+    />
   );
 
   const renderMotivationalText = () => (
     <View style={styles.textContainer}>
       <Text style={[styles.motivationalText, { fontFamily: 'FugazOne' }]}>
-        "The Choice to be a mother is the choice to become one of the greatest teachers in the world."
+        {isArabic 
+          ? "اختيار أن تكوني أمًا هو اختيار أن تصبحي واحدة من أعظم المعلمات في العالم."
+          : "\"The Choice to be a mother is the choice to become one of the greatest teachers in the world.\""
+        }
       </Text>
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* حاوية الناف بار */}
+      {/* حاوية الناف بار مع تمرير showLanguageToggle=true */}
       <View style={styles.navContainer}>
-        <Navbar scrollY={new Animated.Value(0)} />
+        <Navbar 
+          scrollY={new Animated.Value(0)}
+          showLanguageToggle={true}
+        />
       </View>
 
       {/* حاوية قائمة الأمراض */}
@@ -54,6 +68,8 @@ export default function DiseasesSplashPage() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
+          // جعل قائمة الأمراض تبدأ من اليمين في حالة اللغة العربية
+          inverted={isArabic}
         />
       </View>
 
@@ -66,6 +82,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: bgColors.light.background,
+  },
+  containerRTL: {
+    // إزالة direction: 'rtl' لتجنب مشاكل التنسيق
   },
   navContainer: {
     height: Math.min(SCREEN_HEIGHT * 0.08, 60),

@@ -1,4 +1,4 @@
-import { View, StyleSheet, Text, Dimensions, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Text, Dimensions, TouchableOpacity, Alert, ActivityIndicator, I18nManager } from 'react-native';
 import { diseases } from '@/data/diseases';
 import { bgColors } from '@/constants/Colors';
 import { MaterialIcons } from "@expo/vector-icons";
@@ -21,6 +21,8 @@ export default function DiseaseDetails({ disease, updateSavedDiseases }: Disease
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { language } = useLanguage();
+  
+  const isArabic = language === 'ar';
   
   useEffect(() => {
     const getToken = async () => {
@@ -57,7 +59,7 @@ export default function DiseaseDetails({ disease, updateSavedDiseases }: Disease
 
   const handleSave = async () => {
     if (!token) {
-      Alert.alert('Alert', 'Please login first');
+      Alert.alert('Alert', isArabic ? 'الرجاء تسجيل الدخول أولاً' : 'Please login first');
       return;
     }
 
@@ -69,20 +71,26 @@ export default function DiseaseDetails({ disease, updateSavedDiseases }: Disease
           updateSavedDiseases(prev => [...prev, disease]);
         }
         setIsSaved(true);
-        Alert.alert('Success', 'Disease saved successfully');
+        Alert.alert(
+          isArabic ? 'تم بنجاح' : 'Success', 
+          isArabic ? 'تم حفظ المرض بنجاح' : 'Disease saved successfully'
+        );
       } else {
         await deleteDisease(token, disease.id.toString());
         if (updateSavedDiseases) {
           updateSavedDiseases(prev => prev.filter(d => d.id !== disease.id));
         }
         setIsSaved(false);
-        Alert.alert('Success', 'Disease removed from saved items');
+        Alert.alert(
+          isArabic ? 'تم بنجاح' : 'Success', 
+          isArabic ? 'تمت إزالة المرض من العناصر المحفوظة' : 'Disease removed from saved items'
+        );
       }
     } catch (error: any) {
       console.error('Error saving/deleting disease:', error);
       Alert.alert(
-        'Error', 
-        error.response?.data?.error || 'Error processing your request. Please try again.'
+        isArabic ? 'خطأ' : 'Error', 
+        error.response?.data?.error || (isArabic ? 'حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى.' : 'Error processing your request. Please try again.')
       );
     } finally {
       setIsSaving(false);
@@ -93,14 +101,19 @@ export default function DiseaseDetails({ disease, updateSavedDiseases }: Disease
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <ActivityIndicator size="large" color="#623AA2" />
-        <Text style={{ marginTop: 10, color: '#623AA2' }}>Loading...</Text>
+        <Text style={{ marginTop: 10, color: '#623AA2' }}>
+          {isArabic ? 'جاري التحميل...' : 'Loading...'}
+        </Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.buttonsContainer}>
+    <View style={[styles.container, isArabic && styles.containerRTL]}>
+      <View style={[
+        styles.buttonsContainer, 
+        isArabic ? styles.buttonsContainerRTL : styles.buttonsContainerEN
+      ]}>
         <TouchableOpacity 
           style={[styles.saveButton, isSaved && styles.savedButton]} 
           onPress={handleSave}
@@ -112,14 +125,25 @@ export default function DiseaseDetails({ disease, updateSavedDiseases }: Disease
             color={isSaved ? "#fff" : "#623AA2"} 
           />
           <Text style={[styles.saveButtonText, isSaved && styles.savedButtonText]}>
-            {isSaving ? "Saving..." : (isSaved ? 'saved' : 'save')}
+            {isSaving 
+              ? (isArabic ? "جاري الحفظ..." : "Saving...") 
+              : (isSaved 
+                ? (isArabic ? 'محفوظ' : 'saved') 
+                : (isArabic ? 'حفظ' : 'save'))
+            }
           </Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.content}>
-        <Text style={styles.title}>{disease.name}</Text>
-        <Text style={styles.date}>{disease.date}</Text>
-        <Text style={styles.details}>{disease.details}</Text>
+      <View style={[styles.content, isArabic && styles.contentRTL]}>
+        <Text style={[styles.title, isArabic && styles.titleRTL]}>
+          {isArabic ? disease.name_ar : disease.name}
+        </Text>
+        <Text style={[styles.date, isArabic && styles.dateRTL]}>
+          {isArabic ? disease.date_ar : disease.date}
+        </Text>
+        <Text style={[styles.details, isArabic && styles.detailsRTL]}>
+          {isArabic ? disease.details_ar : disease.details}
+        </Text>
       </View>
     </View>
   );
@@ -131,8 +155,14 @@ const styles = StyleSheet.create({
     marginTop: Math.min(SCREEN_HEIGHT * 0.02, SCREEN_WIDTH * 0.04),
     marginBottom: Math.min(SCREEN_HEIGHT * 0.02, SCREEN_WIDTH * 0.04),
   },
+  containerRTL: {
+    // إزالة direction: 'rtl' لأنها تسبب مشاكل في التنسيق
+  },
   content: {
     padding: Math.min(SCREEN_WIDTH * 0.9, SCREEN_HEIGHT * 0.05),
+  },
+  contentRTL: {
+    // إزالة وضع alignItems: 'flex-end' لأنه غير مناسب
   },
   title: {
     paddingTop: Math.min(SCREEN_WIDTH * 0.05, SCREEN_HEIGHT * 0.025),
@@ -141,16 +171,29 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: Math.min(SCREEN_HEIGHT * 0.01, SCREEN_WIDTH * 0.02),
   },
+  titleRTL: {
+    textAlign: 'center', // إبقاء العنوان في المنتصف للغتين
+    fontFamily: 'Arial',
+  },
   date: {
     paddingTop: Math.min(SCREEN_WIDTH * 0.2, SCREEN_HEIGHT * 0.06),
     fontSize: Math.min(SCREEN_WIDTH * 0.035, SCREEN_HEIGHT * 0.018),
     color: '#007AFF',
     marginBottom: Math.min(SCREEN_HEIGHT * 0.015, SCREEN_WIDTH * 0.03),
   },
+  dateRTL: {
+    textAlign: 'right',
+    fontFamily: 'Arial',
+  },
   details: {
     fontSize: Math.min(SCREEN_WIDTH * 0.04, SCREEN_HEIGHT * 0.02),
     color: '#444',
     lineHeight: Math.min(SCREEN_WIDTH * 0.06, SCREEN_HEIGHT * 0.03),
+  },
+  detailsRTL: {
+    textAlign: 'right',
+    fontFamily: 'Arial',
+    lineHeight: Math.min(SCREEN_WIDTH * 0.07, SCREEN_HEIGHT * 0.035), // زيادة المسافة بين السطور للعربية
   },
   buttonsContainer: {
     position: 'absolute',
@@ -158,6 +201,14 @@ const styles = StyleSheet.create({
     right: 16,
     zIndex: 3,
     alignItems: 'flex-end',
+  },
+  buttonsContainerEN: {
+    top: SCREEN_HEIGHT * 0.16, // زيادة المسافة للأسفل في حالة اللغة الإنجليزية
+  },
+  buttonsContainerRTL: {
+    right: 'auto',
+    left: 16,
+    alignItems: 'flex-start',
   },
   saveButton: {
     flexDirection: 'row',

@@ -7,12 +7,13 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const CARD_WIDTH = Math.min(300, SCREEN_WIDTH * 0.85);
 
-interface DiseaseCardProps {
+export interface DiseaseCardProps {
   disease: typeof diseases[number];
   onSelect: (disease: typeof diseases[number]) => void;
+  isArabic?: boolean;
 }
 
-export default function DiseaseCard({ disease, onSelect }: DiseaseCardProps) {
+export default function DiseaseCard({ disease, onSelect, isArabic = false }: DiseaseCardProps) {
   return (
     <TouchableOpacity 
       style={styles.card}
@@ -27,12 +28,22 @@ export default function DiseaseCard({ disease, onSelect }: DiseaseCardProps) {
         />
       </View>
       <View style={styles.contentContainer}>
-        <View style={styles.weekBadge}>
-          <Text style={styles.weekText}>{disease.date}</Text>
+        <View style={[styles.weekBadge, isArabic && styles.weekBadgeRTL]}>
+          <Text style={[styles.weekText, isArabic && styles.weekTextRTL]}>
+            {isArabic ? disease.date_ar : disease.date}
+          </Text>
         </View>
-        <Text style={styles.title} numberOfLines={1}>{disease.name}</Text>
-        <Text style={styles.description} numberOfLines={4}>
-          {disease.summary}
+        <Text 
+          style={[styles.title, isArabic && styles.titleRTL]} 
+          numberOfLines={1}
+        >
+          {isArabic ? disease.name_ar : disease.name}
+        </Text>
+        <Text 
+          style={[styles.description, isArabic && styles.descriptionRTL]} 
+          numberOfLines={4}
+        >
+          {isArabic ? disease.summary_ar : disease.summary}
         </Text>
       </View>
     </TouchableOpacity>
@@ -53,6 +64,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
+  },
+  cardRTL: {
+    // إزالة خاصية direction لتجنب المشاكل
   },
   imageContainer: {
     flex: 0.6, // 60% من ارتفاع البطاقة
@@ -77,21 +91,40 @@ const styles = StyleSheet.create({
     top: 2,
     justifyContent: 'center',
   },
+  weekBadgeRTL: {
+    right: 'auto',
+    left: 7,
+  },
   weekText: {
     textAlign: 'center',
     color: '#fff',
     fontSize: Math.min(SCREEN_WIDTH * 0.03, SCREEN_HEIGHT * 0.015),
+  },
+  weekTextRTL: {
+    textAlign: 'center', // إبقاء النص في المنتصف للوضوح
+    fontFamily: 'Arial',
   },
   title: {
     fontSize: Math.min(SCREEN_WIDTH * 0.05, SCREEN_HEIGHT * 0.025),
     fontWeight: 'bold',
     color: '#333',
     marginTop: Math.min(SCREEN_WIDTH * 0.05, SCREEN_HEIGHT * 0.04),
+    textAlign: 'left',
+  },
+  titleRTL: {
+    textAlign: 'right',
+    fontFamily: 'Arial',
   },
   description: {
     fontSize: Math.min(SCREEN_WIDTH * 0.035, SCREEN_HEIGHT * 0.018),
     color: '#666',
     lineHeight: Math.min(SCREEN_WIDTH * 0.045, SCREEN_HEIGHT * 0.022),
     marginTop: Math.min(SCREEN_WIDTH * 0.02, SCREEN_HEIGHT * 0.01),
+    textAlign: 'left',
+  },
+  descriptionRTL: {
+    textAlign: 'right',
+    fontFamily: 'Arial',
+    lineHeight: Math.min(SCREEN_WIDTH * 0.055, SCREEN_HEIGHT * 0.025), // زيادة المسافة بين السطور للنص العربي
   },
 }); 

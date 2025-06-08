@@ -59,7 +59,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // محاولة التعامل مع الأخطاء بشكل آمن
   const safelyFetchNotifications = async () => {
     try {
-      console.log('[NotificationContext] Attempting to fetch notifications');
       return await NotificationService.getNotifications();
     } catch (error) {
       logError('Error in safelyFetchNotifications', error);
@@ -70,15 +69,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // Load auth state and notifications
   useEffect(() => {
     const loadInitialData = async () => {
-      console.log('[NotificationContext] Loading initial data');
       try {
         const authStatus = await isAuthenticated();
-        console.log('[NotificationContext] Auth status:', authStatus);
         setIsLoggedIn(authStatus);
         
         if (authStatus) {
           try {
-            console.log('[NotificationContext] User is authenticated, fetching notifications');
             await fetchNotifications();
           } catch (error) {
             logError('Error fetching initial notifications', error);
@@ -87,7 +83,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             setUnreadCount(mockNotifications.filter(n => !n.isRead).length);
           }
         } else {
-          console.log('[NotificationContext] User is not authenticated, using mock data');
           // Use mock data for non-logged in users
           setNotifications(mockNotifications);
           setUnreadCount(mockNotifications.filter(n => !n.isRead).length);
@@ -100,7 +95,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       } finally {
         setIsLoading(false);
         setIsInitialized(true);
-        console.log('[NotificationContext] Initial data loading completed');
       }
     };
     
@@ -109,7 +103,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Handle login - update to authenticated state
   const login = useCallback(async () => {
-    console.log('[NotificationContext] Login called');
     setIsLoggedIn(true);
     try {
       setIsLoading(true);
@@ -126,7 +119,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Handle logout - reset to non-authenticated state
   const logout = useCallback(() => {
-    console.log('[NotificationContext] Logout called');
     setIsLoggedIn(false);
     setNotifications(mockNotifications);
     setUnreadCount(mockNotifications.filter(n => !n.isRead).length);
@@ -135,16 +127,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // Set up polling for notifications if user is logged in
   useEffect(() => {
     if (!isLoggedIn || !pollingActive || !isInitialized) {
-      console.log('[NotificationContext] Polling not active:', { isLoggedIn, pollingActive, isInitialized });
-      return;
     }
 
-    console.log('[NotificationContext] Setting up notification polling');
     const fetchUnreadCount = async () => {
       try {
         // Only fetch the count, which is more efficient than fetching all notifications
         const count = await NotificationService.getUnreadCount();
-        console.log('[NotificationContext] Unread count:', count, 'Current:', unreadCount);
         
         // If the count changed, refresh the full notifications list
         if (count !== unreadCount) {
@@ -161,11 +149,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     
     // Set up polling interval
     const intervalId = setInterval(fetchUnreadCount, POLLING_INTERVAL);
-    console.log('[NotificationContext] Polling interval set up');
     
     // Clean up on unmount
     return () => {
-      console.log('[NotificationContext] Cleaning up polling interval');
       clearInterval(intervalId);
     };
   }, [isLoggedIn, pollingActive, unreadCount, isInitialized]);
@@ -177,9 +163,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Fetch notifications from API
   const fetchNotifications = useCallback(async () => {
-    console.log('[NotificationContext] fetchNotifications called, isLoggedIn:', isLoggedIn);
     if (!isLoggedIn) {
-      console.log('[NotificationContext] Not logged in, using mock data');
       setNotifications(mockNotifications);
       setUnreadCount(mockNotifications.filter(n => !n.isRead).length);
       setIsLoading(false);
@@ -188,9 +172,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     
     try {
       setIsLoading(true);
-      console.log('[NotificationContext] Fetching notifications from API');
       const data = await safelyFetchNotifications();
-      console.log('[NotificationContext] Notifications received:', data.length);
       setNotifications(data);
     } catch (error) {
       logError('Error fetching notifications', error);
@@ -202,7 +184,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Mark a notification as read
   const markAsRead = useCallback(async (notificationId: string | number) => {
-    console.log('[NotificationContext] Marking notification as read:', notificationId);
     // Update local state first for better UX
     setNotifications(prev => 
       prev.map(n => 
@@ -222,7 +203,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Mark all notifications as read
   const markAllAsRead = useCallback(async () => {
-    console.log('[NotificationContext] Marking all notifications as read');
     // Update local state first for better UX
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     setUnreadCount(0);
@@ -239,7 +219,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Clear all notifications
   const clearAll = useCallback(async () => {
-    console.log('[NotificationContext] Clearing all notifications');
     // Update local state first for better UX
     setNotifications([]);
     setUnreadCount(0);
@@ -256,9 +235,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Enable/disable polling when app goes to background/foreground
   useEffect(() => {
-    console.log('[NotificationContext] Setting up AppState listener');
     const handleAppStateChange = (nextAppState: string) => {
-      console.log('[NotificationContext] App state changed to:', nextAppState);
       if (nextAppState === 'active') {
         setPollingActive(true);
         if (isInitialized) {
@@ -275,7 +252,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const subscription = AppState.addEventListener('change', handleAppStateChange);
     
     return () => {
-      console.log('[NotificationContext] Cleaning up AppState listener');
       subscription.remove();
     };
   }, [fetchNotifications, isInitialized]);

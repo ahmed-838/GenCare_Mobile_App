@@ -6,6 +6,7 @@ import DiseaseCard from './DiseaseCard';
 import DiseaseDetails from './DiseaseDetails';
 import { diseases } from '@/data/diseases';
 import { useLocalSearchParams } from 'expo-router';
+import { useLanguage } from '@/contexts/LanguageContext';
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const NAVBAR_HEIGHT = 100;
 
@@ -15,6 +16,8 @@ export default function DiseasesPage() {
   const [selectedDiseaseState, setSelectedDiseaseState] = useState<typeof diseases[number] | null>(selectedDisease || null);
   const scrollY = new Animated.Value(0);
   const horizontalScrollRef = useRef<FlatList>(null);
+  const { language } = useLanguage();
+  const isArabic = language === 'ar';
 
   useEffect(() => {
     if (selectedDisease) {
@@ -53,6 +56,7 @@ export default function DiseasesPage() {
                 key={item.id}
                 disease={item}
                 onSelect={setSelectedDiseaseState}
+                isArabic={isArabic}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -63,6 +67,7 @@ export default function DiseasesPage() {
               offset: (CARD_WIDTH + 15) * index,
               index,
             })}
+            inverted={isArabic}
             onScrollToIndexFailed={(info) => {
               const wait = new Promise(resolve => setTimeout(resolve, 500));
               wait.then(() => {
