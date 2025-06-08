@@ -58,14 +58,14 @@ export const SavedItemsSection: React.FC<SavedItemsSectionProps> = ({
       }
     >
       <View style={styles.card}>
-        <ThemedText style={styles.cardTitle}>العناصر المحفوظة</ThemedText>
+        <ThemedText style={styles.cardTitle}>Saved Items</ThemedText>
         
         {/* Diseases Section */}
         <TouchableOpacity 
           style={styles.sectionHeader} 
           onPress={() => toggleSection('diseases')}
         >
-          <ThemedText style={styles.sectionTitle}>الأمراض</ThemedText>
+          <ThemedText style={styles.sectionTitle}>Diseases</ThemedText>
           <FontAwesome 
             name={expandedSections.diseases ? 'chevron-up' : 'chevron-down'} 
             size={16} 
@@ -85,7 +85,7 @@ export const SavedItemsSection: React.FC<SavedItemsSectionProps> = ({
                       {disease.name}
                     </ThemedText>
                     <ThemedText style={styles.dateText}>
-                      {disease.date ? new Date(disease.date).toLocaleDateString() : 'لا يوجد تاريخ'}
+                      {disease.date ? new Date(disease.date).toLocaleDateString() : 'No date'}
                     </ThemedText>
                   </View>
                   <View style={styles.itemActions}>
@@ -123,7 +123,7 @@ export const SavedItemsSection: React.FC<SavedItemsSectionProps> = ({
                 </View>
               ))
             ) : (
-              <ThemedText style={styles.emptyText}>لا توجد أمراض محفوظة</ThemedText>
+              <ThemedText style={styles.emptyText}>No saved diseases</ThemedText>
             )}
           </View>
         )}
@@ -133,7 +133,7 @@ export const SavedItemsSection: React.FC<SavedItemsSectionProps> = ({
           style={styles.sectionHeader} 
           onPress={() => toggleSection('weeks')}
         >
-          <ThemedText style={styles.sectionTitle}>الأسابيع المحفوظة</ThemedText>
+          <ThemedText style={styles.sectionTitle}>Saved Weeks</ThemedText>
           <FontAwesome 
             name={expandedSections.weeks ? 'chevron-up' : 'chevron-down'} 
             size={16} 
@@ -147,7 +147,7 @@ export const SavedItemsSection: React.FC<SavedItemsSectionProps> = ({
                 const weekInfo = NewsList.find(w => w.id.toString() === item.week);
                 return (
                   <View key={index} style={styles.savedItem}>
-                    <ThemedText>الأسبوع {item.week}</ThemedText>
+                    <ThemedText>Week {item.week}</ThemedText>
                     <View style={styles.itemActions}>
                       <TouchableOpacity
                         onPress={() => router.push({
@@ -169,7 +169,7 @@ export const SavedItemsSection: React.FC<SavedItemsSectionProps> = ({
                 );
               })
             ) : (
-              <ThemedText style={styles.emptyText}>لا توجد أسابيع محفوظة</ThemedText>
+              <ThemedText style={styles.emptyText}>No saved weeks</ThemedText>
             )}
           </View>
         )}
@@ -179,7 +179,7 @@ export const SavedItemsSection: React.FC<SavedItemsSectionProps> = ({
           style={styles.sectionHeader} 
           onPress={() => toggleSection('babyNames')}
         >
-          <ThemedText style={styles.sectionTitle}>أسماء الأطفال</ThemedText>
+          <ThemedText style={styles.sectionTitle}>Baby Names</ThemedText>
           <FontAwesome 
             name={expandedSections.babyNames ? 'chevron-up' : 'chevron-down'} 
             size={16} 
@@ -196,7 +196,7 @@ export const SavedItemsSection: React.FC<SavedItemsSectionProps> = ({
                       <Text style={styles.letterBadgeText}>{group.letter}</Text>
                     </View>
                     <Text style={styles.letterCount}>
-                      {group.names.length} {group.names.length === 1 ? 'اسم' : 'أسماء'}
+                      {group.names.length} {group.names.length === 1 ? 'name' : 'names'}
                     </Text>
                     <View style={styles.letterActions}>
                       <TouchableOpacity
@@ -246,7 +246,7 @@ export const SavedItemsSection: React.FC<SavedItemsSectionProps> = ({
                 </View>
               ))
             ) : (
-              <ThemedText style={styles.emptyText}>لا توجد أسماء محفوظة</ThemedText>
+              <ThemedText style={styles.emptyText}>No saved baby names</ThemedText>
             )}
           </View>
         )}

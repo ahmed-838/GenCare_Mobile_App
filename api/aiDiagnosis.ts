@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { API_URL } from '@/config/config';
-      
+
 export const uploadImageForDiagnosis = async (imageUri: string): Promise<any> => {
   console.log('sending image for diagnosis:', imageUri);
   

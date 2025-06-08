@@ -5,29 +5,29 @@ export const validateHealthForm = (data: HealthData): { isValid: boolean; errors
   const errors: ValidationErrors = {};
   let isValid = true;
 
-  // التحقق من ضغط الدم
+  // Check blood pressure
   if (data.bloodPressure) {
     const bpPattern = /^\d{2,3}\/\d{2,3}$/;
     if (!bpPattern.test(data.bloodPressure)) {
-      errors.bloodPressure = 'صيغة غير صحيحة. استخدم الصيغة: 120/80';
+      errors.bloodPressure = 'Invalid blood pressure format. Use the format: 120/80';
       isValid = false;
     }
   }
 
-  // التحقق من مستوى السكر في الدم
+  // Check blood sugar
   if (data.bloodSugar) {
     const sugar = Number(data.bloodSugar);
     if (isNaN(sugar) || sugar < 50 || sugar > 500) {
-      errors.bloodSugar = 'يجب أن يكون سكر الدم بين 50 و 500 ملغ/ديسيلتر';
+      errors.bloodSugar = 'Blood sugar must be between 50 and 500 mg/dL';
       isValid = false;
     }
   }
 
-  // التحقق من الوزن
+  // Check weight
   if (data.weight) {
     const weight = Number(data.weight);
     if (isNaN(weight) || weight < 30 || weight > 200) {
-      errors.weight = 'يجب أن يكون الوزن بين 30 و 200 كغم';
+      errors.weight = 'Weight must be between 30 and 200 kg';
       isValid = false;
     }
   }

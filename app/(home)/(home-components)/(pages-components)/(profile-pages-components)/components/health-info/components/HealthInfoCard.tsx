@@ -27,7 +27,6 @@ export const HealthInfoCard: React.FC<HealthInfoCardProps> = ({
       return tempHealthData.symptoms;
     }
     
-    // إذا كان نصًا، قم بتقسيمه بناءً على الفواصل أو الأسطر الجديدة
     return tempHealthData.symptoms.split(/[,\n]+/).map(s => s.trim()).filter(s => s);
   };
 

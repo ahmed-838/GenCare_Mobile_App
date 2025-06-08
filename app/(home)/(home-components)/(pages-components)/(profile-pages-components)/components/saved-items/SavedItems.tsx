@@ -8,14 +8,14 @@ import { getSavedWeeks, deleteWeek } from './api/savedWeeks';
 import { getSavedBabyNames, deleteLetter, deleteBabyName } from './api/savedBabeNames';
 import * as SecureStore from 'expo-secure-store';
 
-// نوع البيانات للأقسام المفتوحة
+  // Type for expanded sections
 type SectionName = 'weeks' | 'diseases' | 'babyNames';
 
 const SavedItems = () => {
   const [expandedSections, setExpandedSections] = useState<ExpandedSections>({
-    weeks: true, // افتح قسم الأسابيع افتراضيًا
-    diseases: true, // افتح قسم الأمراض افتراضيًا
-    babyNames: true  // افتح قسم أسماء الأطفال افتراضيًا
+    weeks: true, // Open weeks section by default
+    diseases: true, // Open diseases section by default
+    babyNames: true  // Open baby names section by default
   });
   const [savedWeeks, setSavedWeeks] = useState<Array<{ week: string; date: string }>>([]);
   const [savedDiseases, setSavedDiseases] = useState<SavedDisease[]>([]);
@@ -23,7 +23,7 @@ const SavedItems = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // دالة لتبديل حالة القسم (مفتوح/مغلق)
+  // Toggle section state
   const toggleSection = (section: keyof ExpandedSections) => {
     setExpandedSections(prev => ({
       ...prev,
@@ -31,7 +31,7 @@ const SavedItems = () => {
     }));
   };
   
-  // استدعاء البيانات المحفوظة عند تحميل المكون
+    // Fetch saved items when the component loads
   useEffect(() => {
     fetchSavedItems();
   }, []);
@@ -43,15 +43,15 @@ const SavedItems = () => {
       
       const token = await SecureStore.getItemAsync('token');
       if (!token) {
-        setError('يجب تسجيل الدخول لعرض العناصر المحفوظة');
+        setError('please login to view saved items');
         return;
       }
       
-      // جلب الأمراض المحفوظة
+      // Fetch saved diseases
       const diseases = await getSavedDiseases(token);
       console.log('Fetched saved diseases:', diseases);
       
-      // تحويل البيانات إلى الشكل المطلوب
+      // Convert data to the required format
       const formattedDiseases = diseases.map((disease: any) => ({
         _id: disease.diseaseId || disease._id,
         name: disease.name,
@@ -60,11 +60,11 @@ const SavedItems = () => {
       
       setSavedDiseases(formattedDiseases);
       
-      // جلب الأسابيع المحفوظة
+      // Fetch saved weeks
       const weeks = await getSavedWeeks(token);
       console.log('Fetched saved weeks:', weeks);
       
-      // تحويل البيانات إلى الشكل المطلوب
+      // Convert data to the required format
       const formattedWeeks = weeks.map((week: any) => ({
         week: week.week,
         date: week.savedAt || new Date().toISOString()
@@ -72,11 +72,11 @@ const SavedItems = () => {
       
       setSavedWeeks(formattedWeeks);
       
-      // جلب أسماء الأطفال المحفوظة
+      // Fetch saved baby names
       const babyNames = await getSavedBabyNames(token);
       console.log('Fetched saved baby names:', babyNames);
       
-      // تحويل البيانات إلى الشكل المطلوب
+      // Convert data to the required format
       const formattedBabyNames = babyNames.map((item: any) => ({
         letter: item.letter,
         names: item.names
@@ -86,7 +86,7 @@ const SavedItems = () => {
       
     } catch (error) {
       console.error('Error fetching saved items:', error);
-      setError('فشل في تحميل العناصر المحفوظة');
+      setError('Error fetching saved items');
     } finally {
       setLoading(false);
     }
@@ -96,20 +96,20 @@ const SavedItems = () => {
     try {
       const token = await SecureStore.getItemAsync('token');
       if (!token) {
-        Alert.alert('خطأ', 'يجب تسجيل الدخول لحذف العناصر');
+        Alert.alert('Error', 'please login to delete items');
         return;
       }
       
-      // حذف المرض
+      // Delete disease
       await deleteDisease(token, id);
       
-      // تحديث القائمة بعد الحذف
+      // Update the list after deletion
       setSavedDiseases(prev => prev.filter(disease => disease._id !== id));
       
-      Alert.alert('نجاح', 'تم حذف المرض بنجاح');
+      Alert.alert('Success', 'Disease deleted successfully');
     } catch (error) {
       console.error('Error deleting disease:', error);
-      Alert.alert('خطأ', 'فشل في حذف المرض');
+      Alert.alert('Error', 'Failed to delete disease');
     }
   };
   
@@ -117,20 +117,20 @@ const SavedItems = () => {
     try {
       const token = await SecureStore.getItemAsync('token');
       if (!token) {
-        Alert.alert('خطأ', 'يجب تسجيل الدخول لحذف العناصر');
+        Alert.alert('Error', 'please login to delete items');
         return;
       }
       
-      // حذف الأسبوع
+      // Delete week
       await deleteWeek(token, week);
       
-      // تحديث القائمة بعد الحذف
+      // Update the list after deletion
       setSavedWeeks(prev => prev.filter(w => w.week !== week));
       
-      Alert.alert('نجاح', 'تم حذف الأسبوع بنجاح');
+      Alert.alert('Success', 'Week deleted successfully');
     } catch (error) {
       console.error('Error deleting week:', error);
-      Alert.alert('خطأ', 'فشل في حذف الأسبوع');
+      Alert.alert('Error', 'Failed to delete week');
     }
   };
   
@@ -138,20 +138,20 @@ const SavedItems = () => {
     try {
       const token = await SecureStore.getItemAsync('token');
       if (!token) {
-        Alert.alert('خطأ', 'يجب تسجيل الدخول لحذف العناصر');
+        Alert.alert('Error', 'please login to delete items');
         return;
       }
       
-      // حذف الحرف بالكامل
+      // Delete letter
       await deleteLetter(token, letter);
       
-      // تحديث القائمة بعد الحذف
+      // Update the list after deletion
       setSavedBabyNames(prev => prev.filter(item => item.letter !== letter));
       
-      Alert.alert('نجاح', 'تم حذف جميع الأسماء بنجاح');
+      Alert.alert('Success', 'All names deleted successfully');
     } catch (error) {
       console.error('Error deleting baby name letter:', error);
-      Alert.alert('خطأ', 'فشل في حذف الأسماء');
+      Alert.alert('Error', 'Failed to delete baby name letter');
     }
   };
   
@@ -159,23 +159,23 @@ const SavedItems = () => {
     try {
       const token = await SecureStore.getItemAsync('token');
       if (!token) {
-        Alert.alert('خطأ', 'يجب تسجيل الدخول لحذف العناصر');
+        Alert.alert('Error', 'please login to delete items');
         return;
       }
       
-      // حذف الاسم
+      // Delete name
       await deleteBabyName(token, letter, name);
       
-      // تحديث القائمة بعد الحذف
+      // Update the list after deletion
       setSavedBabyNames(prev => {
         const updated = [...prev];
         const letterIndex = updated.findIndex(item => item.letter === letter);
         
         if (letterIndex !== -1) {
-          // حذف الاسم من الحرف
+          // Delete name from letter
           updated[letterIndex].names = updated[letterIndex].names.filter(n => n.name !== name);
           
-          // إذا لم تبق أسماء في هذا الحرف، احذف الحرف
+          // If there are no names in this letter, delete the letter
           if (updated[letterIndex].names.length === 0) {
             return updated.filter(item => item.letter !== letter);
           }
@@ -184,10 +184,10 @@ const SavedItems = () => {
         return updated;
       });
       
-      Alert.alert('نجاح', 'تم حذف الاسم بنجاح');
+      Alert.alert('Success', 'Name deleted successfully');
     } catch (error) {
       console.error('Error deleting baby name:', error);
-      Alert.alert('خطأ', 'فشل في حذف الاسم');
+      Alert.alert('Error', 'Failed to delete baby name');
     }
   };
   
@@ -195,7 +195,7 @@ const SavedItems = () => {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#623AA2" />
-        <Text style={{ marginTop: 10, color: '#623AA2' }}>جاري تحميل العناصر المحفوظة...</Text>
+        <Text style={{ marginTop: 10, color: '#623AA2' }}>Loading saved items...</Text>
       </View>
     );
   }
@@ -213,7 +213,7 @@ const SavedItems = () => {
           }}
           onPress={fetchSavedItems}
         >
-          إعادة المحاولة
+          Try again
         </Text>
       </View>
     );

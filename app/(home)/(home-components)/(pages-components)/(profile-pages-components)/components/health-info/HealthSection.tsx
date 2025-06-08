@@ -24,7 +24,7 @@ function HealthSection({
   const [error, setError] = useState<string | null>(null);
   const { fetchNotifications } = useNotifications();
 
-  // جلب البيانات الصحية عند تحميل المكون
+    // Fetch health data when the component loads
   useEffect(() => {
     const fetchHealthData = async () => {
       setInitialLoading(true);
@@ -35,7 +35,7 @@ function HealthSection({
         setTempHealthData(data);
       } catch (err) {
         console.error('Error fetching health data:', err);
-        setError('فشل في تحميل البيانات الصحية');
+        setError('Error fetching health data');
       } finally {
         setInitialLoading(false);
       }
@@ -63,13 +63,13 @@ function HealthSection({
     if (isValid) {
       setIsLoading(true);
       try {
-        // تحديث البيانات في قاعدة البيانات
+        // Update health data in the database
         await updateHealthInfo(tempHealthData);
-        // تحديث البيانات محليًا
+        // Update local state
         setCurrentHealth(tempHealthData);
         setIsEditingHealth(false);
         
-        // Refresh notifications to show the new health update notification
+        // Refresh notifications to show the new health update
         await fetchNotifications();
       } catch (error) {
         console.error('Error updating health info:', error);
@@ -84,17 +84,17 @@ function HealthSection({
     setErrors({});
   };
 
-  // عرض مؤشر التحميل أثناء جلب البيانات الأولية
+  // Show loading indicator while fetching initial health data
   if (initialLoading) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', minHeight: 200 }]}>
         <ActivityIndicator size="large" color="#623AA2" />
-        <ThemedText style={{ marginTop: 10, color: '#623AA2' }}>جاري تحميل البيانات الصحية...</ThemedText>
+        <ThemedText style={{ marginTop: 10, color: '#623AA2' }}>Loading health data...</ThemedText>
       </View>
     );
   }
 
-  // عرض رسالة خطأ في حالة فشل جلب البيانات
+  // Show error message if health data fetching fails
   if (error) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', minHeight: 200 }]}>

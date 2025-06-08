@@ -72,7 +72,7 @@ export const EditHealthModal: React.FC<EditHealthModalProps> = ({
           >
             <View style={styles.bpContainer}>
               <View style={[styles.editFieldContainer, { flex: 1, marginRight: 8 }]}>
-                <ThemedText style={styles.fieldLabel}>ضغط الدم الانقباضي</ThemedText>
+                <ThemedText style={styles.fieldLabel}>Blood Pressure (Systolic)</ThemedText>
                 <TextInput
                   style={[styles.editInput, errors.bloodPressure && { borderColor: '#EF4444' }]}
                   value={tempHealthData.bloodPressure?.split('/')[0] || ''}
@@ -93,7 +93,7 @@ export const EditHealthModal: React.FC<EditHealthModalProps> = ({
               </View>
               
               <View style={[styles.editFieldContainer, { flex: 1, marginLeft: 8 }]}>
-                <ThemedText style={styles.fieldLabel}>ضغط الدم الانبساطي</ThemedText>
+                <ThemedText style={styles.fieldLabel}>Blood Pressure (Diastolic)</ThemedText>
                 <TextInput
                   style={[styles.editInput, errors.bloodPressure && { borderColor: '#EF4444' }]}
                   value={tempHealthData.bloodPressure?.split('/')[1] || ''}
@@ -104,7 +104,7 @@ export const EditHealthModal: React.FC<EditHealthModalProps> = ({
                       bloodPressure: `${systolic}/${text}`
                     }))
                   }}
-                  placeholder="مثال: 80"
+                    placeholder="e.g. 80"
                   placeholderTextColor="#9CA3AF"
                   keyboardType="numeric"
                 />
