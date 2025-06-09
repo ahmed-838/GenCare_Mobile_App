@@ -15,25 +15,16 @@ export default function Footer() {
     missionDescription: "Our mission is to make pregnancy care accessible to all women, providing reliable information and tools that empower them to make informed decisions about their health and their baby's development.",
     team: [
       {
-        name: "Dr. Sarah Johnson",
-        role: "Medical Advisor",
-        description: "Specialized in obstetrics with over 15 years of experience in maternal care."
+        "name": "Prof. Dr. Sayed El-Dahshan",
       },
       {
-        name: "Emma Williams",
-        role: "Nutritionist",
-        description: "Expert in maternal nutrition and dietary planning for optimal pregnancy health."
-      },
-      {
-        name: "Michael Chen",
-        role: "App Developer",
-        description: "Technical lead responsible for creating an intuitive and helpful pregnancy companion app."
+        "name": "Assist. Prof. Omneya Atef"
       }
     ],
     contact: {
-      email: "support@gencare.com",
-      phone: "+1 (555) 123-4567",
-      website: "www.gencare.com"
+      // email: "support@gencare.com",
+      phone: "+20 122 4900 205",
+        // website: "www.gencare.com"
     }
   };
 
@@ -101,9 +92,7 @@ export default function Footer() {
                   </View>
                   <View style={styles.teamMemberInfo}>
                     <ThemedText style={styles.teamMemberName}>{member.name}</ThemedText>
-                    <ThemedText style={styles.teamMemberRole}>{member.role}</ThemedText>
-                    <ThemedText style={styles.teamMemberDescription}>{member.description}</ThemedText>
-                  </View>
+                 </View>
                 </View>
               ))}
 
@@ -111,16 +100,8 @@ export default function Footer() {
                 Contact Us
               </ThemedText>
               <View style={styles.contactItem}>
-                <Ionicons name="mail" size={20} color="#623AA2" />
-                <ThemedText style={styles.contactText}>{aboutUsContent.contact.email}</ThemedText>
-              </View>
-              <View style={styles.contactItem}>
                 <Ionicons name="call" size={20} color="#623AA2" />
                 <ThemedText style={styles.contactText}>{aboutUsContent.contact.phone}</ThemedText>
-              </View>
-              <View style={styles.contactItem}>
-                <Ionicons name="globe" size={20} color="#623AA2" />
-                <ThemedText style={styles.contactText}>{aboutUsContent.contact.website}</ThemedText>
               </View>
 
               <View style={styles.footer}>
