@@ -18,7 +18,11 @@ export default {
       adaptiveIcon: {
         foregroundImage: "./assets/Logo/baby-boy.png",
         backgroundColor: "#ffffff"
-      }
+      },
+      // --- THE NEW LINES YOU ADDED ---
+      compileSdkVersion: 34,
+      targetSdkVersion: 34,
+      buildToolsVersion: "34.0.0"
     },
     ios: {
       bundleIdentifier: "com.ahmed-shams2.gencare"

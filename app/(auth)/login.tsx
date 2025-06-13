@@ -1,4 +1,4 @@
-import { Image, StyleSheet, TextInput, Text, View, TouchableOpacity, Animated, Dimensions, Alert } from "react-native";
+import { Image, StyleSheet, TextInput, Text, View, TouchableOpacity, Animated, Dimensions, Alert, ScrollView } from "react-native";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from "@expo/vector-icons/AntDesign";
 import React from "react";
@@ -106,7 +106,7 @@ const LoginScreen = () => {
     };
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
             <Animated.View 
                 style={[
                     styles.topImageContainer,
@@ -122,173 +122,209 @@ const LoginScreen = () => {
                 />
             </Animated.View>
             
-            <Animated.View style={{
-                opacity: fadeAnim,
-            }}>
+            <Animated.View style={[
+                styles.contentContainer,
+                {
+                    opacity: fadeAnim,
+                    transform: [{ scale: scaleAnim }]
+                }
+            ]}>
                 <View style={styles.helloContainer}>
-                    <Text style={styles.helloText}>Welcome Back to GenCare!</Text>
+                    <Text style={styles.helloText}>Welcome Back!</Text>
+                    <Text style={styles.subText}>Sign in to continue to GenCare</Text>
                 </View>
                 
                 <View style={styles.logoContainer}>
-                    <TouchableOpacity onPress={() => router.push('/(home)/home')}>
-                    <Image
-                        source={require("@/assets/Logo/Mob-Logo-removebg-preview.png")}
-                        style={styles.logo}
-                        resizeMode="contain"
-                    />
+                    <TouchableOpacity onPress={() => router.push('/(home)/home')} activeOpacity={0.8}>
+                        <Image
+                            source={require("@/assets/Logo/Mob-Logo-removebg-preview.png")}
+                            style={styles.logo}
+                            resizeMode="contain"
+                        />
                     </TouchableOpacity>
                 </View>
 
-                <View>
-                    <Text style={styles.signInText}>Sign in to your account</Text>
+                <View style={styles.formContainer}>
+                    <View style={styles.inputContainer}>
+                        <FontAwesome name="user" size={20} color="#8ED1FC" style={styles.inputIcon} />
+                        <TextInput 
+                            style={styles.textInput} 
+                            placeholder="Email or Phone Number"
+                            placeholderTextColor="#A0A0A0"
+                            value={identifier}
+                            onChangeText={setIdentifier}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                        />
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <FontAwesome name="lock" size={20} color="#8ED1FC" style={styles.inputIcon} />
+                        <TextInput 
+                            style={styles.textInput} 
+                            placeholder="Password" 
+                            placeholderTextColor="#A0A0A0"
+                            secureTextEntry
+                            value={password}
+                            onChangeText={setPassword}
+                        />
+                    </View>
+
+                    <TouchableOpacity onPress={handleForgotPassword} activeOpacity={0.7}>
+                        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                    </TouchableOpacity>
+
+                    <View style={styles.signinButton}>
+                        <MainButton 
+                            title={isLoading ? "Signing In..." : "Sign In"}
+                            onPress={handleLogin}
+                            backgroundColor="#8ED1FC"
+                        />      
+                    </View>
+
+                    <View style={styles.dividerContainer}>
+                        <View style={styles.dividerLine} />
+                        <Text style={styles.dividerText}>OR</Text>
+                        <View style={styles.dividerLine} />
+                    </View>
+
+                    <TouchableOpacity onPress={handleRegister} style={styles.registerContainer} activeOpacity={0.8}>
+                        <Text style={styles.footerText}>
+                            Join Us? <Text style={styles.registerText}>Create Account</Text>
+                        </Text>
+                    </TouchableOpacity>
                 </View>
-
-                <View style={styles.inputContainer}>
-                    <FontAwesome name="user" size={24} color="#9A9A9A" style={styles.inputIcon} />
-                    <TextInput 
-                        style={styles.textInput} 
-                        placeholder="Email or Phone Number"
-                        value={identifier}
-                        onChangeText={setIdentifier}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                    />
-                </View>
-
-                <View style={styles.inputContainer}>
-                    <FontAwesome name="lock" size={24} color="#9A9A9A" style={styles.inputIcon} />
-                    <TextInput 
-                        style={styles.textInput} 
-                        placeholder="Password" 
-                        secureTextEntry
-                        value={password}
-                        onChangeText={setPassword}
-                    />
-                </View>
-
-                <TouchableOpacity onPress={handleForgotPassword}>
-                    <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-                </TouchableOpacity>
-
-                <View style={styles.signinButton}>
-                    <MainButton 
-                        title={isLoading ? "Loading..." : "Sign In"}
-                        onPress={handleLogin}
-                        backgroundColor="#8ED1FC"
-                        
-                    />      
-                </View>
-
-                <View style={styles.socialMediaContainer}>
-                    <AntDesign name="google" size={30} color="#9A9A9A" style={styles.socialMediaIcon} />
-                </View>
-
-                <TouchableOpacity onPress={handleRegister}>
-                    <Text style={styles.footerText}>
-                        Don't have an account? <Text style={{textDecorationLine: "underline"}}>Create</Text>
-                    </Text>
-                </TouchableOpacity>
             </Animated.View>
-        </View>
+        </ScrollView>
     );
 };
 
 export default LoginScreen;
 
+const { width, height } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#F8F9FA",
     flex: 1,
-    position: "relative",
-    marginBottom: "25%",
   },
-  topImageContainer: {},
+  topImageContainer: {
+    alignItems: 'center',
+  },
   topImage: {
-    width: "100%",
-    height: "18%",
-    minHeight: 100,
-    maxHeight: 150,
+    width: width,
+    height: height * 0.15,
+    minHeight: 80,
+    maxHeight: 120,
   },
-  helloContainer: {},
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: width * 0.05,
+    paddingTop: height * 0.02,
+  },
+  helloContainer: {
+    alignItems: 'center',
+    marginBottom: height * 0.03,
+  },
   helloText: {
+    fontSize: Math.min(28, width * 0.07),
+    fontWeight: "700",
+    color: "#2C3E50",
     textAlign: "center",
-    fontSize: Math.min(32, Dimensions.get('window').width * 0.08),
-    marginBottom: Dimensions.get('window').height * 0.01,
-    fontWeight: "500",
-    color: "#262626",
-    paddingHorizontal: "5%",
+    marginBottom: height * 0.01,
+  },
+  subText: {
+    fontSize: Math.min(16, width * 0.04),
+    color: "#7F8C8D",
+    textAlign: "center",
+    fontWeight: "400",
   },
   logoContainer: {
     alignItems: 'center',
+    marginBottom: height * 0.02,
   },
   logo: {
-    width: Dimensions.get('window').width * 0.4,
-    height: Dimensions.get('window').height * 0.2,
+    width: width * 0.35,
+    height: height * 0.15,
     resizeMode: 'contain',
   },
-  signInText: {
-    textAlign: "center",
-    fontSize: Math.min(18, Dimensions.get('window').width * 0.045),
-    color: "#262626",
-    marginBottom: "1%",
+  formContainer: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 25,
+    padding: width * 0.06,
+    marginTop: height * 0.02,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginHorizontal: "8%",
-    marginVertical: "3%",
+    marginVertical: height * 0.015,
     borderRadius: 15,
-    backgroundColor: "#FFFFFF",
-    elevation: 10,
-    height: Math.max(45, Dimensions.get('window').height * 0.06),
+    backgroundColor: "#F8F9FA",
+    borderWidth: 1,
+    borderColor: "#E9ECEF",
+    height: Math.max(50, height * 0.06),
+    paddingHorizontal: width * 0.04,
   },
   inputIcon: {
-    marginLeft: "5%",
-    marginRight: "2%",
+    marginRight: width * 0.03,
   },
   textInput: {
     flex: 1,
-    fontSize: Math.min(16, Dimensions.get('window').width * 0.04),
-    color: '#000000',
-    paddingHorizontal: 10,
+    fontSize: Math.min(16, width * 0.04),
+    color: '#2C3E50',
+    fontWeight: "400",
   },
-    forgotPasswordText: {
-        textAlign: "right",
-        color: "#BEBEBE",
-        fontSize: Math.min(16, Dimensions.get('window').width * 0.04),
-        marginRight: "10%",
-        width: "90%",
-    },
-    signinButton: {
-        marginTop: "5%",
-        alignSelf: 'center',
-        width: '40%',
-        minWidth: 120,
-        maxWidth: 200,
-    },
-    signinButtonText: {
-        color: '#FFFFFF',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    socialMediaContainer: {
-      flexDirection: "row",
-      justifyContent: "center",
-      marginVertical: "3%",
-    },
-    socialMediaIcon: {
-      backgroundColor: "#FFFFFF",
-      elevation: 10,
-      margin: "1%",
-      padding: "3%",
-      borderRadius: 50,
+  forgotPasswordText: {
+    textAlign: "right",
+    color: "#8ED1FC",
+    fontSize: Math.min(14, width * 0.035),
+    marginTop: height * 0.01,
+    marginBottom: height * 0.03,
+    fontWeight: "500",
   },
-    footerText: {
-        textAlign: "center",
-        color: "#262626",
-        fontSize: Math.min(18, Dimensions.get('window').width * 0.045),
-        marginTop: "5%",
-    },
-    
-
+  signinButton: {
+    alignSelf: 'center',
+    width: '100%',
+    marginBottom: height * 0.03,
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: height * 0.025,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E9ECEF',
+  },
+  dividerText: {
+    marginHorizontal: width * 0.04,
+    color: '#95A5A6',
+    fontSize: Math.min(12, width * 0.03),
+    fontWeight: "500",
+  },
+  registerContainer: {
+    alignItems: 'center',
+    paddingVertical: height * 0.02,
+    borderRadius: 15,
+    backgroundColor: "#F8F9FA",
+  },
+  footerText: {
+    color: "#7F8C8D",
+    fontSize: Math.min(16, width * 0.04),
+    fontWeight: "400",
+  },
+  registerText: {
+    color: "#F78DA7",
+    fontWeight: "600",
+    textDecorationLine: "underline",
+  },
 });

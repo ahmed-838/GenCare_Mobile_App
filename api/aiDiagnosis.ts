@@ -38,3 +38,4 @@ export const uploadImageForDiagnosis = async (imageUri: string): Promise<any> =>
     };
   }
 }; 
+ 

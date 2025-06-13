@@ -15,10 +15,10 @@ export default function Footer() {
     missionDescription: "Our mission is to make pregnancy care accessible to all women, providing reliable information and tools that empower them to make informed decisions about their health and their baby's development.",
     team: [
       {
-        "name": "Prof. Dr. Sayed El-Dahshan",
+        "name": "Prof. Sayed El-Dahshan",
       },
       {
-        "name": "Assist. Prof. Omneya Atef"
+        "name": "Assistant Lecturer. Omneya Atef"
       }
     ],
     contact: {
