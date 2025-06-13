@@ -22,7 +22,13 @@ export default {
       // --- THE NEW LINES YOU ADDED ---
       compileSdkVersion: 34,
       targetSdkVersion: 34,
-      buildToolsVersion: "34.0.0"
+      buildToolsVersion: "34.0.0",
+      // Add permissions for local build
+      permissions: [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     ios: {
       bundleIdentifier: "com.ahmed-shams2.gencare"
