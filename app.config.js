@@ -2,7 +2,7 @@ export default {
   expo: {
     name: 'GenCare',
     slug: 'gencare',
-    version: '1.0.0',
+    version: '4.0.0',
     icon: "./assets/Logo/baby-boy.png",
     sdkVersion: "53.0.0",
     extra: {
@@ -28,7 +28,8 @@ export default {
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE"
-      ]
+      ],
+      versionCode:4
     },
     ios: {
       bundleIdentifier: "com.ahmed-shams2.gencare"
