@@ -2,7 +2,7 @@ export default {
   expo: {
     name: 'GenCare',
     slug: 'gencare',
-    version: '1.0.0',
+    version: '4.0.0',
     icon: "./assets/Logo/baby-boy.png",
     sdkVersion: "53.0.0",
     extra: {
@@ -18,7 +18,8 @@ export default {
       adaptiveIcon: {
         foregroundImage: "./assets/Logo/baby-boy.png",
         backgroundColor: "#ffffff"
-      }
+      },
+      versionCode:4
     },
     ios: {
       bundleIdentifier: "com.ahmed-shams2.gencare"
